@@ -454,7 +454,6 @@ public class UsbService extends Service
                         if (mIsSwitchFrom != USB_SWITCH_FROM_ADB) {
                             showConnectedToast(currentMode);
                             setUsbConnectionNotificationVisibility(true, false);
-                            enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
                         }
                         emitReconfigurationIntent(true);
                         updateUsbStateFile(true, currentMode);
@@ -786,20 +785,6 @@ public class UsbService extends Service
         });
     }
 
-    private void enableInternalDataConnectivity(boolean enable) {
-        Log.d(TAG, "enableInternalDataConnectivity(): " + enable);
-
-        try {
-            if (enable) {
-                mPhoneService.enableDataConnectivity();
-            } else {
-                mPhoneService.disableDataConnectivity();
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Switching data connectivity failed", e);
-        }
-    }
-
     private String getUsbModeString(int mode) {
         ModeInfo info = sModes.get(mode);
         return info != null ? info.name : null;
@@ -957,7 +942,6 @@ public class UsbService extends Service
 
         int currentMode = getCurrentUsbMode();
         setUsbConnectionNotificationVisibility(true, true);
-        enableInternalDataConnectivity(currentMode != USB_MODE_MODEM);
         sendBroadcast(new Intent(ACTION_CABLE_ATTACHED));
         emitReconfigurationIntent(true);
         updateUsbStateFile(true, currentMode);
@@ -1001,7 +985,6 @@ public class UsbService extends Service
         if (mUsbCableAttached) {
             mUsbCableAttached = false;
             setUsbConnectionNotificationVisibility(false, false);
-            enableInternalDataConnectivity(true);
             sendBroadcast(new Intent(ACTION_CABLE_DETACHED));
             emitReconfigurationIntent(false);
             updateUsbStateFile(false, -1);
